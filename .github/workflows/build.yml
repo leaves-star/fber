@@ -1,39 +1,40 @@
-name: Build FydeOS for OrangePi5b
+name: Build openFyde for OrangePi5B (eMMC)
 
 on:
-  push:                     # 每次推送代码自动触发构建
-    branches:
-      - main
-  workflow_dispatch:        # 也可以在 GitHub 网页手动点击“Run workflow”触发
+  push:
+    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set Up Build Environment
+      - name: Install prerequisites
         run: |
           sudo apt update
           sudo apt install -y wget xz-utils
 
-      - name: Download openFyde .run Installer
+      - name: Download openFyde .run script
         run: |
-          wget https://github.com/openFyde/overlay-orangepi5-openfyde/releases/download/r132/orangepi5-openfyde-r132.run -O fydeos.run
-          chmod +x fydeos.run
+          wget https://github.com/openFyde/overlay-orangepi5-openfyde/releases/download/r132/orangepi5-openfyde-r132.run \
+            -O openfyde.run
+          chmod +x openfyde.run
 
-      - name: Generate FydeOS IMG (OrangePi5B, eMMC/raw)
+      - name: Generate IMG for OrangePi5B with eMMC boot
         run: |
-          ./fydeos.run --board orangepi5b --boot raw
+          ./openfyde.run --board orangepi5b --boot emmc
 
-      - name: List Generated Files
-        run: ls -lh *.img || echo "No image generated"
+      - name: Verify generated image
+        run: |
+          ls -lh *.img || echo "❌ No image generated"
 
-      - name: Upload Generated Image as Artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: FydeOS-OrangePi5B-IMG
+          name: openfyde-OrangePi5B-emmc
           path: "*.img"
           retention-days: 7
+
