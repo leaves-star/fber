@@ -1,4 +1,4 @@
-name: Build openFyde for OrangePi5B (eMMC)
+name: Build openFyde r126 for OrangePi5B (eMMC)
 
 on:
   push:
@@ -9,32 +9,29 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install prerequisites
+      - name: Install tools
         run: |
           sudo apt update
           sudo apt install -y wget xz-utils
 
-      - name: Download openFyde .run script
+      - name: Download openFyde r126 installer
         run: |
-          wget https://github.com/openFyde/overlay-orangepi5-openfyde/releases/download/r132/orangepi5-openfyde-r132.run \
-            -O openfyde.run
-          chmod +x openfyde.run
+          wget https://github.com/openFyde/overlay-orangepi5-openfyde/releases/download/r126/orangepi5-openfyde-r126.run -O openfyde126.run
+          chmod +x openfyde126.run
 
-      - name: Generate IMG for OrangePi5B with eMMC boot
+      - name: Generate eMMC IMG (r126)
         run: |
-          ./openfyde.run --board orangepi5b --boot emmc
+          ./openfyde126.run --board orangepi5b --boot emmc
 
-      - name: Verify generated image
-        run: |
-          ls -lh *.img || echo "❌ No image generated"
+      - name: List output
+        run: ls -lh *.img || echo "No image produced"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: openfyde-OrangePi5B-emmc
+          name: openfyde-OrangePi5B-r126-emmc
           path: "*.img"
           retention-days: 7
-
