@@ -1,0 +1,27 @@
+name: Build FydeOS for OrangePi5b
+
+on:
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download openFyde run script
+        run: |
+          wget https://github.com/openFyde/overlay-orangepi5-openfyde/releases/download/r132/orangepi5-openfyde-r132.run -O fydeos.run
+          chmod +x fydeos.run
+
+      - name: Generate IMG (for Orange Pi 5b, eMMC boot)
+        run: |
+          ./fydeos.run --board orangepi5b --boot emmc
+
+      - name: Upload generated image
+        uses: actions/upload-artifact@v4
+        with:
+          name: fydeos-img
+          path: ./*.img
