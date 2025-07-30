@@ -1,27 +1,39 @@
 name: Build FydeOS for OrangePi5b
 
 on:
-  workflow_dispatch:  # 允许手动触发
+  push:                     # 每次推送代码自动触发构建
+    branches:
+      - main
+  workflow_dispatch:        # 也可以在 GitHub 网页手动点击“Run workflow”触发
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Download openFyde run script
+      - name: Set Up Build Environment
+        run: |
+          sudo apt update
+          sudo apt install -y wget xz-utils
+
+      - name: Download openFyde .run Installer
         run: |
           wget https://github.com/openFyde/overlay-orangepi5-openfyde/releases/download/r132/orangepi5-openfyde-r132.run -O fydeos.run
           chmod +x fydeos.run
 
-      - name: Generate IMG (for Orange Pi 5b, eMMC boot)
+      - name: Generate FydeOS IMG (OrangePi5B, eMMC/raw)
         run: |
-          ./fydeos.run --board orangepi5b --boot emmc
+          ./fydeos.run --board orangepi5b --boot raw
 
-      - name: Upload generated image
+      - name: List Generated Files
+        run: ls -lh *.img || echo "No image generated"
+
+      - name: Upload Generated Image as Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: fydeos-img
-          path: ./*.img
+          name: FydeOS-OrangePi5B-IMG
+          path: "*.img"
+          retention-days: 7
